@@ -13,6 +13,9 @@ venv/
 # uv
 .python-version
 
+# Project
+AGENTS.md
+
 # IDE
 .vscode/
 .idea/
