@@ -14,7 +14,7 @@ Browse matches with vim keys, preview files with syntax highlighting, and open d
 
 ---
 
-## Features
+## Features.
 
 - **Live search** with ripgrep — fast, incremental, regex-powered
 - **Split-pane TUI** — match list on the left, file preview with syntax highlighting on the right
