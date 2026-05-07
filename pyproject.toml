@@ -1,0 +1,12 @@
+[project]
+name = "ath"
+version = "0.1.0"
+description = "A beautiful TUI code search tool"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "textual>=8.2.5",
+]
+
+[project.scripts]
+ath = "ath.main:main"
