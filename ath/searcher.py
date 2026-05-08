@@ -16,6 +16,8 @@ class Match:
 
 
 def search(root: Path, term: str, extensions: list[str] | None = None) -> list[Match]:
+    if not term:
+        return []
     cmd = ["rg", "--json", "--no-heading"]
     if extensions:
         for ext in extensions:
@@ -28,6 +30,12 @@ def search(root: Path, term: str, extensions: list[str] | None = None) -> list[M
         raise RuntimeError(
             "ripgrep (rg) is required. Install it: sudo dnf install ripgrep"
         )
+
+    if proc.returncode not in (0, 1):
+        stderr = proc.stderr.strip()
+        if stderr:
+            raise RuntimeError(f"ripgrep error: {stderr}")
+        raise RuntimeError(f"ripgrep exited with code {proc.returncode}")
 
     matches: list[Match] = []
     for line in proc.stdout.splitlines():
@@ -58,6 +66,9 @@ def load_context(root: Path, match: Match, n: int = CONTEXT) -> tuple[
     try:
         lines = filepath.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
+        return [], []
+
+    if match.line_number < 1 or match.line_number > len(lines):
         return [], []
 
     idx = match.line_number - 1

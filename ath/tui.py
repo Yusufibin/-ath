@@ -18,13 +18,17 @@ CONTEXT = 10
 
 
 def _build_file_view(root: Path, match: Match, term: str) -> Text:
+    filepath = root / match.file
+    if not filepath.exists():
+        return Text("(file not found or unreadable)")
+
     before, after = load_context(root, match, n=CONTEXT)
-    text = Text()
 
     all_lines = before + [(match.line_number, match.line_content)] + after
     if not all_lines:
         return Text("(file not found or unreadable)")
 
+    text = Text()
     max_ln = max(ln for ln, _ in all_lines)
     ln_width = len(str(max_ln))
 
@@ -52,6 +56,9 @@ def _highlight_line(
     content: str, term: str, match_style: str = "bold yellow"
 ) -> Text:
     text = Text()
+    if not term:
+        text.append(content)
+        return text
     pattern = re.compile(re.escape(term), re.IGNORECASE)
     last = 0
     for m in pattern.finditer(content):
@@ -64,6 +71,8 @@ def _highlight_line(
 
 def _truncate(s: str, max_len: int = 60) -> str:
     s = s.strip()
+    if max_len <= 0:
+        return "..."
     if len(s) > max_len:
         return s[:max_len - 3] + "..."
     return s
@@ -185,8 +194,11 @@ class AthApp(App):
         editor = os.environ.get("EDITOR", "nvim")
         vim_family = {"vim", "nvim", "vi", "gvim", "mvim"}
         if editor not in vim_family:
-            fallback = shutil.which("nvim") or shutil.which("vim") or editor
-            editor = fallback
+            fallback = shutil.which("nvim") or shutil.which("vim") or None
+            if fallback:
+                editor = fallback
+            else:
+                editor = "vim"
         filepath = self._root / match.file
         with self.suspend():
             subprocess.run([editor, f"+{match.line_number}", str(filepath)])
