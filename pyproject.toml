@@ -8,5 +8,10 @@ dependencies = [
     "textual>=8.2.5",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
 [project.scripts]
 ath = "ath.main:main"
